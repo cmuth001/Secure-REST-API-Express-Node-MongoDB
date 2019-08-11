@@ -15,7 +15,7 @@
 
 Admin have access to get all the users(admin/developers) in the database.
 
-| ![All Users](public/allusers.png)  |
+| ![All Users](public/allUsers.png)  |
 |:---:|
 | All Users |
 
