@@ -7,10 +7,10 @@ router.get('/', function(req, res){
     });
 });
 // users routes
-router.route('/users').get([controller.validJWTNeeded, controller.index])
+router.route('/users').get([controller.checkLogin, controller.index])
                       .post(controller.newUser);
                       
-router.route('/user/:id').get(controller.view)
+router.route('/user/:id').get([controller.checkLogin,controller.view])
                          .put(controller.update)
                          .delete(controller.delete);
 // Expose API routes to public

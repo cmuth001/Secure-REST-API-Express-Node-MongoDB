@@ -8,30 +8,38 @@ exports.authIndex = (req, res, next) => {
         message: 'Auth Index Route Working',
     });
 };
-exports.validJWTNeeded = (req, res, next) => {
+exports.checkLogin = (req, res, next) => {
     
     if (req.headers['authorization']) {
         
         try {
             let authorization = req.headers['authorization'].split(' ');
             if (authorization[0] !== 'Bearer') {
-                return res.status(401).send();
+                return res.status(401).json({
+                    Error: 'Invalid syntax of token',
+                    status: 401,
+                });
             } else {
-                console.log("validJWTNeeded: ", req.headers['authorization']);
+                // console.log("validJWTNeeded: ", req.headers['authorization']);
                 req.jwt = jwt.verify(authorization[1], private_Key);
                 return next();
             }
         } catch (err) {
-            return res.status(403).send();
+            return res.status(403).json({
+                Error: 'Erorr occured during authentication',
+                status: 401,
+            });
         }
     } else {
-        console.log("err validJWTNeeded");
-        return res.status(401).send();
+        return res.status(401).json({
+            Error: 'Token is required!',
+            status: 401,
+        });
     }
 };
 exports.login = (req, res, next) => {
     // console.log(req.headers)
-    console.log("---")
+    // console.log("---")
     Auth.findOne({email: req.body.email})
         .then( user => {
             if(!user){
@@ -39,7 +47,7 @@ exports.login = (req, res, next) => {
                     message: 'User does not exist!'
                 });
             }
-            console.log("login: ", user)
+            // console.log("login: ", user)
             bcrypt.compare(req.body.password, user.password)
             .then(result => {
                 if(!result){
