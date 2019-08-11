@@ -17,12 +17,12 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 // Setup server port
 var port = process.env.PORT || 3000;
-app.use('/api', apiRoutes);
-app.use('/auth', authRoutes);
+app.use('/v1/api', apiRoutes);
+app.use('/v1/auth', authRoutes);
 
 mongoose
   .connect(
-    "mongodb+srv://cmuth001:uIQc0vhkYeHTbzkI@chat-room-eqvp3.mongodb.net/secure-rest-api?retryWrites=true&w=majority", { useNewUrlParser: true }
+    "mongodb+srv://cmuth001:uIQc0vhkYeHTbzkI@chat-room-eqvp3.mongodb.net/secure-rest-api", { useNewUrlParser: true }
   )
   .then(() => {
     console.log("Connected to database!");
@@ -30,16 +30,6 @@ mongoose
   .catch(() => {
     console.log("Connection failed!");
   });
-// // Connect to Mongoose and set connection variable
-// mongoose.connect('mongodb://localhost/test', { useNewUrlParser: true});
-// var db = mongoose.connection;
-
-// // Added check for DB connection
-// if(!db)
-//     console.log("Error connecting db")
-// else
-//     console.log("Db connected successfully")
-// Sending message to the default Route
 app.get('/', function (req, res) {
     res.json({
         status: 'Main page',

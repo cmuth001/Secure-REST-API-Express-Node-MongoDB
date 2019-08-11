@@ -8,10 +8,10 @@ router.get('/', function(req, res){
 });
 // users routes
 router.route('/users').get([controller.checkLogin, controller.index])
-                      .post(controller.newUser);
+                      .post([controller.checkLogin, controller.newUser]);
                       
-router.route('/user/:id').get([controller.checkLogin,controller.view])
-                         .put(controller.update)
-                         .delete(controller.delete);
+router.route('/user/:id').get(controller.view)
+                         .put([controller.checkLogin, controller.checkRole, controller.update])
+                         .delete([controller.checkLogin, controller.checkRole, controller.delete]);
 // Expose API routes to public
 module.exports = router;

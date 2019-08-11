@@ -3,6 +3,7 @@ const Auth =  require('../model/auth-model.js');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const private_Key = 'this is my secret key';
+var login_role = '';
 exports.authIndex = (req, res, next) => {
     res.status(200).json({
         message: 'Auth Index Route Working',
@@ -22,12 +23,14 @@ exports.checkLogin = (req, res, next) => {
             } else {
                 // console.log("validJWTNeeded: ", req.headers['authorization']);
                 req.jwt = jwt.verify(authorization[1], private_Key);
+
                 return next();
             }
         } catch (err) {
             return res.status(403).json({
-                Error: 'Erorr occured during authentication',
-                status: 401,
+                message: 'Erorr occured during authentication',
+                Error: err,
+                status: 403,
             });
         }
     } else {
@@ -37,6 +40,18 @@ exports.checkLogin = (req, res, next) => {
         });
     }
 };
+exports.checkRole = (req, res, next) => {
+   
+        if(login_role == 'admin'){
+            console.log("User have Access");
+            return next();
+        }else{
+            console.log("Access denied!");
+            return res.status(401).json({
+                message: 'Access denied!'
+            });
+        }
+}
 exports.login = (req, res, next) => {
     // console.log(req.headers)
     // console.log("---")
@@ -57,12 +72,12 @@ exports.login = (req, res, next) => {
                     });
                 }
                 else{
-                    
+                    login_role = user.role;
                     const token = jwt.sign(
                         {email: user.emit, user_id: user._id}, 
                         private_Key, 
                         {expiresIn:'1h'} );
-
+                    
                     return res.status(401).json({
                         message: 'Autenticated successfully!',
                         token: token,
@@ -86,11 +101,13 @@ exports.authSignup = (req, res, next) => {
         const authDetails = new Auth({
             email: req.body.email,
             password: hash,
+            name: req.body.name,
+            role: req.body.role, 
         });
         authDetails.save()
         .then(result => {
             res.status(201).json({
-                message: 'created new user',
+                message: 'New user is registered',
                 result: result,
             });
         })
@@ -104,6 +121,20 @@ exports.authSignup = (req, res, next) => {
 };
 exports.index = (req, res, next) => {
     User.get((err, users) => {
+        var slice_deatils = [];
+        users.forEach(function(item) {
+            // console.log(item);
+            if(login_role == item.role || login_role == 'admin'){
+                slice_deatils.push(
+                {   id: item._id,
+                    name: item.email,
+                    role: item.role,
+                    create_date:item.create_date,
+                });
+            }
+            
+        });
+
         if(err){
             res.json({
                 status: "Error occured in getting users",
@@ -111,9 +142,9 @@ exports.index = (req, res, next) => {
             });
         }
         res.json({
-            status: "success!",
+            status: 200,
             message: "users retrieved successfully",
-            data: users
+            data: slice_deatils,
         });
     });
 };
@@ -123,6 +154,7 @@ exports.newUser = (req, res) => {
     console.log(req.body);
     user.name = req.body.name ? req.body.name : user.name;
     user.email = req.body.email ? req.body.email : user.email;
+    user.role = req.body.email ? req.body.email : user.email;
 
     user.save((err) => {
         if(err){
